@@ -1,0 +1,214 @@
+.game {
+    display: grid;
+    width: 100vw;
+    grid-template-columns: 1fr minmax(20rem, 1fr) 1fr;
+    grid-template-rows: 10rem 1fr minmax(1fr, auto) 1fr;
+    grid-template-areas:
+        "h h h"
+        ". t ."
+        "l m r"
+        ". b ."
+        "y y y";
+    background-color: #009e00;
+}
+
+.center1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-evenly;
+    grid-area: h;
+    height: 5rem;
+    width: 100vw;
+    background-color: white;
+    ul {
+        list-style-type: square;
+    }
+}
+
+.user-list {
+    
+}
+
+.speed-slider {
+    width: 50%;
+    margin-left: 5rem;
+    font-weight: bold;
+    color: white;
+    p {
+        margin: 0;
+    }
+}
+
+.score-board {
+    height: 6rem;
+    width: 15rem;
+    background-color: #eee;
+
+    .score *,
+    .team-names * {
+        display: inline;
+    }
+    .score > *,
+    .team-names > * {
+        margin-right: 1rem;
+    }
+}
+
+.middle-area {
+    grid-area: m;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-areas:
+        ". tc ."
+        "lc mc rc"
+        ". bc .";
+    .card-bottom {
+        grid-area: bc;
+    }
+    .card-left {
+        grid-area: lc;
+        transform: rotate(90deg);
+    }
+    .card-top {
+        grid-area: tc;
+    }
+    .card-right {
+        grid-area: rc;
+        transform: rotate(90deg);
+    }
+}
+
+.card {
+    display: relative;
+    height: 9rem;
+    width: 7rem;
+    img {
+        height: inherit;
+        width: inherit;
+    }
+    img:hover {
+        display: relative;
+        bottom: 10px;
+        transform: scale(1.1);
+    }
+}
+
+.player-name p {
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 1rem;
+}
+
+.empty-div {
+    height: 0px;
+    width: 0px;
+}
+
+.player-top {
+    grid-area: t;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .player-name {
+        order: 2;
+    }
+    .player-cards {
+        margin: 1rem;
+        .card-list {
+            display: grid;
+            grid-template-columns: 1fr 10px;
+            grid-template-rows: 1fr;
+            .card {
+                grid-area: 1 / 1 / 2 / 2;
+            }
+        }
+    }
+}
+
+.player-left {
+    grid-area: l;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    .player-card {
+        order: 3;
+    }
+    .player-name {
+        order: 2;
+    }
+    .player-cards {
+        order: 1;
+        width: 10rem;
+        .card-list {
+            display: grid;
+            transform: rotate(90deg);
+            grid-template-columns: 1fr 10px;
+            grid-template-rows: 1fr;
+            .card {
+                grid-area: 1 / 1 / 2 / 2;
+            }
+        }
+    }
+}
+
+.player-right {
+    grid-area: r;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    .player-card {
+        order: 1;
+    }
+    .player-name {
+        order: 2;
+    }
+    .player-cards {
+        order: 3;
+        width: 10rem;
+        .card-list {
+            display: grid;
+            transform: rotate(90deg);
+            grid-template-columns: 1fr 10px;
+            grid-template-rows: 1fr;
+            .card {
+                grid-area: 1 / 1 / 2 / 2;
+            }
+        }
+    }
+}
+
+.player-bottom {
+    grid-area: b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .card-list {
+        margin: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 10px;
+        grid-template-rows: 1fr;
+        .card {
+            grid-area: 1 / 1 / 2 / 2;
+        }
+    }
+}
+
+.game-finished-message {
+    height: 100vh;
+    color: white;
+    background-color: #26d426;
+}
