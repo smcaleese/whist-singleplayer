@@ -6,15 +6,7 @@ import MiddleCard from './components/MiddleCard'
 import ContinuousSlider from './components/Slider'
 import socketIOClient from 'socket.io-client'
 
-const SOCKET_SERVER_URL = "https://mywhist.herokuapp.com:5000"
-/*
-if(process.env.NODE_ENV === "production") {
-    //SOCKET_SERVER_URL = "http://" + window.location.hostname + ":5000"
-    SOCKET_SERVER_URL = "https://mywhist.herokuapp.com:5000"
-} else {
-    SOCKET_SERVER_URL = "http://localhost:5000"
-}
-*/
+const SOCKET_SERVER_URL = "http://localhost:5000"
 
 let socket
 
