@@ -4,9 +4,9 @@ import Header from './components/Header'
 import Player from './components/Player'
 import MiddleCard from './components/MiddleCard'
 import ContinuousSlider from './components/Slider'
-import socketIOClient from 'socket.io-client'
+import io from 'socket.io-client'
 
-const SOCKET_SERVER_URL = "http://localhost:5000"
+//const SOCKET_SERVER_URL = "http://localhost:4000"
 
 let socket
 
@@ -18,7 +18,8 @@ class SinglePlayerGame extends React.Component {
         }
     }
     componentDidMount() {
-        socket = socketIOClient(SOCKET_SERVER_URL)
+        //socket = socketIOClient(SOCKET_SERVER_URL)
+        socket = io()
         socket.on("connect", () => {
             socket.emit("enter game", "singleplayer")
         })

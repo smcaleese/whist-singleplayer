@@ -1,34 +1,22 @@
 const express = require('express')
 const app = express();
-const socketio = require('socket.io')
-const http = require('http').createServer()
+const socketIO = require('socket.io')
 const path = require('path')
 
-const APP_PORT = 4000
-const SOCKET_PORT = 5000
+const PORT = process.env.PORT || 4000
 
-const io = socketio(http, {
-    cors: {
-        origin: "http://localhost:4000",
-        methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
-    }
+const server = app.listen(PORT, () => {
+    console.log(`app listening on port ${PORT}`)
 })
 
-app.use(express.static(path.join(__dirname, '..', 'build')))
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'build', 'index.html'))
-})
+const io = socketIO(server)
 
-app.listen(APP_PORT, () => {
-    console.log(`app listening on port ${APP_PORT}`)
-
-})
-
-http.listen(SOCKET_PORT, () => {
-    console.log(`socketio listening on port ${SOCKET_PORT}`)
-})
+if(process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, '..', 'build')))
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, '..', 'build', 'index.html'))
+    })
+}
 
 let game = {}
 const deck = ["2H", "3H", "4S", "6C", "7D", "8H", "9S", "KC", "QD", "TH",
