@@ -7,9 +7,12 @@ const path = require('path')
 const APP_PORT = 4000
 const SOCKET_PORT = 5000
 
+const CLIENT_URL = "https://mywhist.herokuapp.com:4000"
+console.log("CLIENT_URL:", CLIENT_URL)
+
 const io = socketio(http, {
     cors: {
-        origin: `http://localhost:${APP_PORT}`,
+        origin: CLIENT_URL,
         methods: ["GET", "POST"],
         allowedHeaders: ["my-custom-header"],
         credentials: true
@@ -23,7 +26,6 @@ app.get('/', (req, res) => {
 
 app.listen(APP_PORT, () => {
     console.log(`app listening on port ${SOCKET_PORT}`)
-
 })
 
 http.listen(SOCKET_PORT, () => {
