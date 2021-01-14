@@ -5,7 +5,14 @@ import Player from './components/Player'
 import MiddleCard from './components/MiddleCard'
 import ContinuousSlider from './components/Slider'
 import socketIOClient from 'socket.io-client'
-const SOCKET_SERVER_URL = "http://localhost:4000"
+
+let SOCKET_SERVER_URL
+if(process.env.NODE_ENV === "production") {
+    SOCKET_SERVER_URL = "https://" + window.location.hostname + ":5000"
+} else {
+    SOCKET_SERVER_URL = "http://localhost:5000"
+}
+
 let socket
 
 class SinglePlayerGame extends React.Component {
