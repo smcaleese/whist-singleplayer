@@ -5,6 +5,7 @@ import Player from './components/Player'
 import MiddleCard from './components/MiddleCard'
 import ContinuousSlider from './components/Slider'
 import io from 'socket.io-client'
+import socketIOClient from 'socket.io-client'
 
 //const SOCKET_SERVER_URL = "http://localhost:4000"
 
@@ -21,11 +22,11 @@ class SinglePlayerGame extends React.Component {
         //socket = socketIOClient(SOCKET_SERVER_URL)
         socket = io()
         socket.on("connect", () => {
-            socket.emit("enter game", "singleplayer")
+            socket.emit("enter game")
         })
         socket.on("reset", (game) => {
             this.setState({game})
-            socket.emit("enter game", "singleplayer")
+            socket.emit("enter game")
         })
         socket.on("init", ( [player_id, game]) => {
             this.setState({player_id, game, loading: false})
@@ -38,9 +39,7 @@ class SinglePlayerGame extends React.Component {
         })
         socket.on("update client", (game) => {
             this.setState({game})
-        })
-        socket.on("update players", (game) => {
-            this.setState({game})
+            socket.emit("client updated")
         })
         socket.on("end of trick", (game) => {
             this.setState({game})

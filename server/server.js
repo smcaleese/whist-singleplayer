@@ -11,6 +11,17 @@ const server = app.listen(PORT, () => {
 
 const io = socketIO(server)
 
+/*
+const io = socketIO(server, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+    }
+})
+*/
+
 if(process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, '..', 'build')))
     app.get('/', (req, res) => {
@@ -71,56 +82,6 @@ game = {
         }
     },
     teams: {
-        1: {
-            tricks: 0,
-            score: 0,
-            otherTeamId: 2
-        },
-        2: {
-            tricks: 0,
-            score: 0,
-            otherTeamId: 1
-        }
-    }
-}
-
-let resetMultiPlayerGame = () => {
-    game.numPlayers = 0
-    game.gameFinished = false
-    game.loading = false
-    game.gameRunning = true
-    game.turnIndex = 0
-    game.playerWhoWonLastTrick = 1
-    game.cardsPlayed = 0
-    game.tricksPlayed = 0
-    game.cardHistory = {}
-    game.players = {
-        1: {
-            currentHand: [],
-            currentCard: "blank",
-            teamId: 1,
-            state: "EMPTY"
-        },
-        2: {
-            currentHand: [],
-            currentCard: "blank",
-            teamId: 2,
-            state: "EMPTY"
-        },
-        3: {
-            currentHand: [],
-            currentCard: "blank",
-            teamId: 1,
-            state: "EMPTY"
-        },
-        4: {
-            currentHand: [],
-            currentCard: "blank",
-            teamId: 2,
-            state: "EMPTY"
-        }
-    }
-    game.teams = {
         1: {
             tricks: 0,
             score: 0,
@@ -225,47 +186,20 @@ let resetTable = () => {
 
 io.on('connection', (client) => {
     client.on('enter game', (gameType) => {
-        game.type = gameType
-        if (game.type === "singleplayer") {
-            if(game.numPlayers >= 1) {
-                game.numPlayers = 0
-            }
-            game.numPlayers += 1
-            startGame()
-            client.emit("init", [1, game])
-        } else if(game.type === "multiplayer") {
-            if(game.players === 4) {
-                return
-            }
-            console.log("enter game")
-            game.numPlayers += 1
-            const newPlayerId = game.numPlayers
-            console.log("number of players:", game.numPlayers, newPlayerId)
-            game.players[newPlayerId].state = "WAITING"
-            updatePlayers()
-            client.emit("init", [newPlayerId, game])
-            //console.log(game)
-            if (game.numPlayers === 4) {
-                console.log("start game")
-                startGame()
-                updatePlayers()
-            }
+        if(game.numPlayers >= 1) {
+            game.numPlayers = 0
         }
+        game.numPlayers += 1
+        startGame()
+        client.emit("init", [1, game])
     })
     client.on('disconnect', () => {
         resetGame()
-        if(game.type === "multiplayer") {
-            resetMultiPlayerGame()
-            updatePlayers()
-        }
         console.log("disconnect", game.type)
     })
     let startGame = () => {
         console.log("start game")
         resetGame()
-        if(game.type === "multiplayer") {
-            resetMultiPlayerGame()
-        }
         shuffle(deck)
         dealCards()
         pickTrump()
@@ -274,7 +208,7 @@ io.on('connection', (client) => {
     }
     let nextTrick = () => {
         resetTable()
-        updatePlayers()
+        updateClient()
         playTrick()
     }
     let playTrick = () => {
@@ -282,69 +216,57 @@ io.on('connection', (client) => {
         console.log("trick started")
         if(currentPlayerId === 1) {
             game.players[1].state = "PLAY"
-            updatePlayers()
+            updateClient()
         } else {
             game.players[currentPlayerId].state = "PLAY"
-            updatePlayers()
-            if(game.type === "singleplayer") {
-                client.emit("run ai")
-            }
+            updateClient()
+            client.emit("run ai")
         }
     }
     client.on('card played', ([index, card]) => {
         console.log("card played")
-        //console.log(game.type)
-        let currentPlayerId = game.currentPlayerOrder[game.turnIndex]
         game.cardsPlayed += 1
-        game.players[currentPlayerId].currentCard = card
-        game.players[currentPlayerId].currentHand.splice(index, 1)
-        game.players[currentPlayerId].state = "PLAYED"
-        game.cardHistory[currentPlayerId] = card
+        game.players[1].currentCard = card
+        game.players[1].currentHand.splice(index, 1)
+        game.players[1].state = "PLAYED"
+        game.cardHistory[1] = card
         if(game.turnIndex === 0) {
             game.leadSuit = suits[card.slice(1, 2)]
             game.messages["currentLeadSuit"] = `lead suit for this trick: ${game.leadSuit}`
         }
-        updatePlayers()
+        updateClient()
         if(game.cardsPlayed === 4) {
             console.log("end of trick")
-            if(game.type === "singleplayer") {
-                io.emit("end of trick", game)
-            } else {
-                updatePlayers()
-                evaluateTrick()
-            }
+            io.emit("end of trick", game)
         } else {
             changeTurn()
             console.log("change turn\n")
-            console.log(game.type)
-            updatePlayers()
-            if(game.type === "singleplayer") {
-                console.log("run ai")
-                client.emit("run ai")
-            }
+            updateClient()
+            client.emit("run ai")
         }
     })
     client.on('run ai', () => {
         console.log("ai running")
         let currentPlayerId = game.currentPlayerOrder[game.turnIndex]
-        AIPlayerPlaysCard(currentPlayerId) // 1. wait for AI to play card
+        AIPlayerPlaysCard(currentPlayerId)
         game.players[currentPlayerId].state = "PLAYED"
         game.cardsPlayed += 1
         console.log(game.cardsPlayed)
         if(game.cardsPlayed === 4) {
+            updateClient()
             client.emit("end of trick", game)
             return
         }
-        changeTurn() // 2. change turn
+        updateClient() // then and only then
+        changeTurn()
         currentPlayerId = game.currentPlayerOrder[game.turnIndex]
-        updatePlayers()  // 3. display card played
         if(currentPlayerId === 1) {
             return
         }
         client.emit('run ai') // 4. repeat
     })
     client.on('end of trick', () => {
-        sleep(gameSpeeds[game.speed])
+        sleep(3000)
         evaluateTrick()
     })
     client.on('update speed', (value) => {
@@ -354,6 +276,7 @@ io.on('connection', (client) => {
         game.turnIndex += 1
         let i = game.currentPlayerOrder[game.turnIndex]
         game.players[i].state = "PLAY"
+        updateClient()
     }
     let AIPlayerPlaysCard = (i) => {
         sleep(gameSpeeds[game.speed])
@@ -401,7 +324,7 @@ io.on('connection', (client) => {
         return value
     }
     let evaluateTrick = () => {
-        updatePlayers()
+        updateClient()
         console.log("trick evaluated")
         game.tricksPlayed += 1
         let bestValue = 0
@@ -451,7 +374,7 @@ io.on('connection', (client) => {
         shuffle(deck)
         dealCards()
         pickTrump()
-        updatePlayers()
+        updateClient()
         nextTrick()
     }
     let pickTrump = () => {
@@ -483,9 +406,11 @@ io.on('connection', (client) => {
         }
     }
     let updateClient = () => {
+        console.log("updating client")
         client.emit("update client", game)
+        sleep(500)  
     }
-    let updatePlayers = () => {
-        io.emit("update players", game)
-    }
+    client.on("client updated", () => {
+        console.log("client updated")
+    })
 })

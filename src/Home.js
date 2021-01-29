@@ -6,12 +6,20 @@ import {
         Link
       } from "react-router-dom";
 import './Home.scss'
+import SinglePlayerGame from './SinglePlayerGame'
 
 class App extends React.Component {
     render() {
         return (
             <div className="app center">
-                <div className="home center">
+                <SinglePlayerGame />
+            </div>
+        )
+    }
+}
+
+/*
+<div className="home center">
                     <div className="logo">
                         <img src={"/logo.png"} alt="logo" />
                     </div>
@@ -19,9 +27,6 @@ class App extends React.Component {
                         <Link to="/singleplayer-game" className="link">Singleplayer</Link>
                     </button>
                 </div>
-            </div>
-        )
-    }
-}
+*/
 
 export default App
