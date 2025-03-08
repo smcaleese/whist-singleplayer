@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "engines": {
-    "node": "12.x"
+    "node": ">=12.x"
   },
   "description": "",
   "main": "server.js",
@@ -10,5 +10,9 @@
     "start": "NODE_ENV=production node server.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
 }
