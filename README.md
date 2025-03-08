@@ -5,3 +5,5 @@ To run the app locally, run the following commands:
 2. `yarn start`
 
 Then open `http://localhost:4000` in your browser.
+
+![](./screenshot.png)
